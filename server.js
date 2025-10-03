@@ -127,7 +127,7 @@ function checkAndCreateTables() {
   });
 }
 
-// ================= ROTAS DA API =================
+//  ROTAS DA API 
 
 // 🔹 Criar usuário
 app.post("/usuarios", (req, res) => {
@@ -304,7 +304,7 @@ app.get("/baralhos/:usuario_id", (req, res) => {
   );
 });
 
-// ================= INICIALIZAÇÃO =================
+//  INICIALIZAÇÃO 
 connectAndInitializeDB();
 
 const PORT = 3000;
