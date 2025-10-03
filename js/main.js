@@ -1,64 +1,104 @@
+// js/main.js - VERSÃO SIMPLES
+
 const startBtn = document.getElementById("start-btn");
 const loginBtn = document.getElementById("login-btn");
 
-// Mostra modal de login ao clicar "Começar" ou botão de login
+// Mostra modal de login
 startBtn.addEventListener("click", () => {
-  if (localStorage.getItem("logado")) {
-    window.location.href = "flashcards.html";
-  } else {
     document.getElementById("login-modal").style.display = "flex";
-  }
 });
 
 loginBtn.addEventListener("click", () => {
-  document.getElementById("login-modal").style.display = "flex";
+    document.getElementById("login-modal").style.display = "flex";
 });
 
-// ==================== REGISTRO ====================
+// Fechar modal ao clicar fora
+document.getElementById('login-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+});
+
+// ==================== FUNÇÃO DE CADASTRO ====================
 async function registerUser() {
-  const nome = document.getElementById("user-login").value.trim();
-  const senha = document.getElementById("pass-login").value.trim();
-  const email = nome + "@teste.com"; // 👈 pode trocar para pedir email real
+    const nome = document.getElementById("user-login").value.trim();
+    const senha = document.getElementById("pass-login").value.trim();
+    const email = nome + "@orangocards.com";
 
-  if (!nome || !senha) {
-    document.getElementById("login-msg").innerText = "Preencha todos os campos!";
-    return;
-  }
+    if (!nome || !senha) {
+        alert("Preencha todos os campos!");
+        return;
+    }
 
-  try {
-    const res = await fetch("http://localhost:3000/usuarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, email, senha })
-    });
-    const data = await res.json();
-    document.getElementById("login-msg").innerText = data.msg || "Erro!";
-  } catch (err) {
-    document.getElementById("login-msg").innerText = "Erro de conexão com o servidor!";
-  }
+    try {
+        // 1. Cria o usuário
+        const res = await fetch("/usuarios", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, email, senha })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            // 2. Faz login automático
+            const loginRes = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, senha })
+            });
+            
+            const loginData = await loginRes.json();
+            
+            if (loginData.success) {
+                // ✅ SALVA O USUÁRIO COMPLETO
+                localStorage.setItem("usuarioLogado", JSON.stringify(loginData.user));
+                
+                // Fecha modal e vai para flashcards
+                document.getElementById("login-modal").style.display = "none";
+                window.location.href = "flashcards.html";
+            } else {
+                alert("Conta criada! Faça login manualmente.");
+            }
+        } else {
+            alert("Erro: " + (data.error || "Erro ao criar conta"));
+        }
+    } catch (err) {
+        alert("Erro de conexão com o servidor!");
+    }
 }
 
-// ==================== LOGIN ====================
+// ==================== FUNÇÃO DE LOGIN ====================
 async function loginUser() {
-  const nome = document.getElementById("user-login").value.trim();
-  const senha = document.getElementById("pass-login").value.trim();
-  const email = nome + "@teste.com";
+    const nome = document.getElementById("user-login").value.trim();
+    const senha = document.getElementById("pass-login").value.trim();
+    const email = nome + "@orangocards.com";
 
-  try {
-    const res = await fetch("http://localhost:3000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, senha })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      localStorage.setItem("logado", data.user.idusuarios);
-      window.location.href = "flashcards.html";
-    } else {
-      document.getElementById("login-msg").innerText = data.msg;
+    if (!nome || !senha) {
+        alert("Preencha todos os campos!");
+        return;
     }
-  } catch (err) {
-    document.getElementById("login-msg").innerText = "Erro ao tentar login!";
-  }
+
+    try {
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, senha })
+        });
+        
+        const data = await res.json();
+
+        if (data.success) {
+            // ✅ SALVA O USUÁRIO COMPLETO
+            localStorage.setItem("usuarioLogado", JSON.stringify(data.user));
+            
+            // Fecha modal e vai para flashcards
+            document.getElementById("login-modal").style.display = "none";
+            window.location.href = "flashcards.html";
+        } else {
+            alert("Erro: " + data.msg);
+        }
+    } catch (err) {
+        alert("Erro de conexão com o servidor!");
+    }
 }

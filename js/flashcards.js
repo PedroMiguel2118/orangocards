@@ -1,119 +1,195 @@
-let currentUser = localStorage.getItem("logado");
+// ==================== VERIFICAR USUÁRIO LOGADO ====================
+let currentUser = null;
 
-if (!currentUser) {
-  window.location.href = "index.html";
+// Recupera o usuário completo do localStorage
+try {
+    const usuarioLogado = localStorage.getItem("usuarioLogado");
+    if (usuarioLogado) {
+        currentUser = JSON.parse(usuarioLogado);
+        console.log("👤 Usuário logado:", currentUser);
+    } else {
+        window.location.href = "index.html";
+    }
+} catch (error) {
+    console.error("Erro ao carregar usuário:", error);
+    window.location.href = "index.html";
 }
 
 // ==================== CRIAR BARALHO AUTOMÁTICO ====================
 async function createDefaultDeck() {
-  try {
-    const res = await fetch("http://localhost:3000/baralho", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        titulo: "Meu Baralho Principal",
-        descricao: "Baralho padrão do usuário",
-        usuario_id: currentUser
-      })
-    });
-    return await res.json();
-  } catch (err) {
-    console.error("Erro ao criar baralho:", err);
-  }
+    try {
+        console.log("📚 Criando baralho padrão para usuário:", currentUser.idusuarios);
+        
+        const res = await fetch("/baralho", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                titulo: "Meu Baralho Principal",
+                descricao: "Baralho padrão do usuário",
+                usuario_id: currentUser.idusuarios
+            })
+        });
+        
+        const result = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(result.error || "Erro ao criar baralho");
+        }
+        
+        return result;
+    } catch (err) {
+        console.error("❌ Erro ao criar baralho:", err);
+        throw err;
+    }
+}
+
+// ==================== OBTER OU CRIAR BARALHO ====================
+async function getOrCreateDeck() {
+    try {
+        const baralhosRes = await fetch(`/baralhos/${currentUser.idusuarios}`);
+        
+        if (!baralhosRes.ok) {
+            const error = await baralhosRes.json();
+            throw new Error(error.error || "Erro ao buscar baralhos");
+        }
+        
+        const baralhos = await baralhosRes.json();
+        
+        if (baralhos.length === 0) {
+            const novoBaralho = await createDefaultDeck();
+            return novoBaralho.id;
+        }
+        
+        return baralhos[0].idbaralho;
+        
+    } catch (err) {
+        console.error("❌ Erro ao obter/criar baralho:", err);
+        throw err;
+    }
+}
+
+// ==================== CONTAR FLASHCARDS EXISTENTES ====================
+async function countFlashcards() {
+    try {
+        const res = await fetch(`/flashcards/${currentUser.idusuarios}`);
+        
+        if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || "Erro ao contar flashcards");
+        }
+        
+        const cards = await res.json();
+        return cards.length;
+        
+    } catch (err) {
+        console.error("❌ Erro ao contar flashcards:", err);
+        return 0;
+    }
 }
 
 // ==================== CARREGAR FLASHCARDS ====================
 async function loadFlashcards() {
-  const wrapper = document.getElementById("cards-wrapper");
-  wrapper.innerHTML = "";
+    const wrapper = document.getElementById("cards-wrapper");
+    const msgElement = document.getElementById("msg");
 
-  try {
-    const res = await fetch(`http://localhost:3000/flashcards/${currentUser}`);
-    
-    if (!res.ok) {
-      // Se não encontrar flashcards, cria um baralho padrão
-      await createDefaultDeck();
-      document.getElementById("msg").innerText = "Baralho criado! Adicione seu primeiro flashcard.";
-      return;
+    try {
+        const res = await fetch(`/flashcards/${currentUser.idusuarios}`);
+        
+        if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || "Erro ao carregar flashcards");
+        }
+        
+        const cards = await res.json();
+
+        wrapper.innerHTML = "";
+
+        if (cards.length === 0) {
+            wrapper.innerHTML = "<p>Nenhum flashcard encontrado. Adicione o primeiro!</p>";
+            return;
+        }
+
+        // 🔹 SEU LAYOUT ORIGINAL - CARTA SIMPLES
+        cards.forEach(c => {
+            const carta = document.createElement("div");
+            carta.classList.add("carta");
+            carta.innerHTML = `
+                <div class="frente">${c.frente}</div>
+                <div class="verso">${c.verso}</div>
+            `;
+            carta.addEventListener("click", () => carta.classList.toggle("virada"));
+            wrapper.appendChild(carta);
+        });
+        
+        // 🔹 ATUALIZA CONTADOR
+        msgElement.innerText = `${cards.length}/20 flashcards criados`;
+        
+    } catch (err) {
+        console.error("❌ Erro ao carregar flashcards:", err);
+        wrapper.innerHTML = "<p>Erro ao carregar flashcards.</p>";
     }
-    
-    const cards = await res.json();
-
-    if (cards.length === 0) {
-      wrapper.innerHTML = "<p>Nenhum flashcard encontrado. Adicione o primeiro!</p>";
-      return;
-    }
-
-    cards.forEach(c => {
-      const carta = document.createElement("div");
-      carta.classList.add("carta");
-      carta.innerHTML = `
-        <div class="frente">${c.frente}</div>
-        <div class="verso">${c.verso}</div>
-      `;
-      carta.addEventListener("click", () => carta.classList.toggle("virada"));
-      wrapper.appendChild(carta);
-    });
-  } catch (err) {
-    console.error("Erro ao carregar flashcards:", err);
-    wrapper.innerHTML = "<p>Erro ao carregar flashcards. Verifique o servidor.</p>";
-  }
 }
 
 // ==================== CRIAR FLASHCARD ====================
 document.getElementById("flashcard-form").addEventListener("submit", async e => {
-  e.preventDefault();
-  const frente = document.getElementById("pergunta").value.trim();
-  const verso = document.getElementById("resposta").value.trim();
-
-  if (!frente || !verso) {
-    document.getElementById("msg").innerText = "Preencha todos os campos!";
-    return;
-  }
-
-  try {
-    // Primeiro verifica se o usuário tem baralhos
-    const baralhosRes = await fetch(`http://localhost:3000/baralhos/${currentUser}`);
-    let baralhoId;
+    e.preventDefault();
     
-    if (!baralhosRes.ok || (await baralhosRes.json()).length === 0) {
-      // Cria baralho se não existir
-      const novoBaralho = await createDefaultDeck();
-      baralhoId = novoBaralho.id;
-    } else {
-      const baralhos = await baralhosRes.json();
-      baralhoId = baralhos[0].idbaralho; // Usa o primeiro baralho
+    const frente = document.getElementById("pergunta").value.trim();
+    const verso = document.getElementById("resposta").value.trim();
+    const msgElement = document.getElementById("msg");
+
+    if (!frente || !verso) {
+        msgElement.innerText = "Preencha todos os campos!";
+        msgElement.style.color = "red";
+        return;
     }
 
-    // Cria o flashcard
-    const res = await fetch("http://localhost:3000/flashcard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        baralho_id: baralhoId, 
-        frente, 
-        verso 
-      })
-    });
+    try {
+        // 🔹 VERIFICA SE JÁ TEM 20 FLASHCARDS
+        const totalFlashcards = await countFlashcards();
+        if (totalFlashcards >= 20) {
+            msgElement.innerText = "❌ Limite de 20 flashcards atingido!";
+            msgElement.style.color = "red";
+            return;
+        }
 
-    if (res.ok) {
-      document.getElementById("msg").innerText = "Flashcard criado com sucesso!";
-      e.target.reset();
-      loadFlashcards(); // Recarrega a lista
-    } else {
-      document.getElementById("msg").innerText = "Erro ao criar flashcard!";
+        const baralhoId = await getOrCreateDeck();
+        
+        const res = await fetch("/flashcard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                baralho_id: baralhoId, 
+                frente, 
+                verso 
+            })
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            throw new Error(result.error || "Erro ao criar flashcard");
+        }
+
+        msgElement.innerText = `✅ Flashcard criado! (${totalFlashcards + 1}/20)`;
+        msgElement.style.color = "green";
+        e.target.reset();
+        
+        // Recarrega a lista
+        loadFlashcards();
+        
+    } catch (err) {
+        console.error("❌ Erro ao criar flashcard:", err);
+        msgElement.innerText = "Erro ao criar flashcard!";
+        msgElement.style.color = "red";
     }
-  } catch (err) {
-    console.error("Erro:", err);
-    document.getElementById("msg").innerText = "Erro de conexão com o servidor!";
-  }
 });
 
 // ==================== LOGOUT ====================
 document.getElementById("logout-btn").addEventListener("click", () => {
-  localStorage.removeItem("logado");
-  window.location.href = "index.html";
+    localStorage.removeItem("usuarioLogado");
+    window.location.href = "index.html";
 });
 
-// Carrega os flashcards ao abrir a página
+// ==================== INICIALIZAÇÃO ====================
 loadFlashcards();
