@@ -1,4 +1,4 @@
-// ==================== VERIFICAR USUÁRIO LOGADO ====================
+//  VERIFICAR USUÁRIO LOGADO 
 let currentUser = null;
 
 // Recupera o usuário completo do localStorage
@@ -15,7 +15,7 @@ try {
     window.location.href = "index.html";
 }
 
-// ==================== CRIAR BARALHO AUTOMÁTICO ====================
+// CRIAR BARALHO AUTOMÁTICO 
 async function createDefaultDeck() {
     try {
         console.log("📚 Criando baralho padrão para usuário:", currentUser.idusuarios);
@@ -43,7 +43,7 @@ async function createDefaultDeck() {
     }
 }
 
-// ==================== OBTER OU CRIAR BARALHO ====================
+//  OBTER OU CRIAR BARALHO 
 async function getOrCreateDeck() {
     try {
         const baralhosRes = await fetch(`/baralhos/${currentUser.idusuarios}`);
@@ -68,7 +68,7 @@ async function getOrCreateDeck() {
     }
 }
 
-// ==================== CONTAR FLASHCARDS EXISTENTES ====================
+//  CONTAR FLASHCARDS EXISTENTES 
 async function countFlashcards() {
     try {
         const res = await fetch(`/flashcards/${currentUser.idusuarios}`);
@@ -87,7 +87,7 @@ async function countFlashcards() {
     }
 }
 
-// ==================== CARREGAR FLASHCARDS ====================
+//  CARREGAR FLASHCARDS 
 async function loadFlashcards() {
     const wrapper = document.getElementById("cards-wrapper");
     const msgElement = document.getElementById("msg");
@@ -130,7 +130,7 @@ async function loadFlashcards() {
     }
 }
 
-// ==================== CRIAR FLASHCARD ====================
+//  CRIAR FLASHCARD 
 document.getElementById("flashcard-form").addEventListener("submit", async e => {
     e.preventDefault();
     
@@ -185,11 +185,11 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
     }
 });
 
-// ==================== LOGOUT ====================
+//  LOGOUT 
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("usuarioLogado");
     window.location.href = "index.html";
 });
 
-// ==================== INICIALIZAÇÃO ====================
+//  INICIALIZAÇÃO 
 loadFlashcards();
