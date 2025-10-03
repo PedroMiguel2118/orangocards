@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrangoCards - Início</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+@font-face {
+    font-family: 'Cooper Black';
+    src: url('CooperBlack.otf') format('opentype');
+}
+</style>
+</head>
+<body>
+    <div class="banner">
+        <figure>
+             <a href="index.html">
+            <img src="img/Orango_Cards.png" alt="Orango Cards" width="64">
+            </a>
+        </figure>
+        <h1>OrangoCards</h1>
+        <p>"Aprenda rápido, memorize fácil!"</p>
+        <a href="#" class="login-btn" id="login-btn">Login</a>
+    </div>
+
+    <div class="flash-card-container">
+        <div class="side-text">
+            Aprenda<br>
+            Melhor,<br>
+            Memorize por<br>
+            Mais Tempo
+        </div>
+        <div class="content-text">
+            <h2>Flash-Card: Como Funciona?</h2>
+            <p>
+                O OrangoCards é uma ferramenta prática e eficiente para otimizar os estudos e aprimorar a memorização. 
+                Com uma interface simples, permite criar seus próprios flashcards, acessar coleções prontas e organizar por matérias ou tópicos.
+            </p>
+        </div>
+    </div>
+
+    <div class="start-btn-wrapper">
+        <button class="start-btn" id="start-btn">Começar</button>
+    </div>
+
+    <!-- Modal de login/cadastro -->
+    <div id="login-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+        <div style="background:#fff3e0; padding:30px; border-radius:15px; max-width:400px; width:90%; text-align:center; position:relative;">
+            <h2>Login / Criar Conta</h2>
+            <input type="text" id="user-login" placeholder="Usuário" style="width:80%; margin:10px 0; padding:8px; border-radius:6px; border:1px solid #ccc;">
+            <input type="password" id="pass-login" placeholder="Senha" style="width:80%; margin:10px 0; padding:8px; border-radius:6px; border:1px solid #ccc;">
+            <div style="margin-top:15px;">
+                <button onclick="loginUser()" style="padding:10px 20px; border:none; border-radius:8px; background:#6b5b3e; color:#f7e7d3; margin-right:10px;">Entrar</button>
+                <button onclick="registerUser()" style="padding:10px 20px; border:none; border-radius:8px; background:#FFA500; color:#fff;">Criar Conta</button>
+            </div>
+            <p id="login-msg" style="margin-top:10px; color:#996600;"></p>
+        </div>
+    </div>
+
+    <!-- FOOTER  -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <img src="img/Orango_Cards.png" alt="OrangoCards Logo" width="50">
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 OrangoCards - Criado por Abraão, Pedro Miguel, Rafael Bruno, Wesley e Yuri</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

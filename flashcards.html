@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrangoCards - Flashcards</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="banner">
+    <figure>
+         <a href="index.html">
+        <img src="img/Orango_Cards.png" alt="Orango Cards" width="64">
+        </a>
+    </figure>
+    <h1>OrangoCards</h1>
+    <p>"Aprenda rápido, memorize fácil!"</p>
+    <a href="#" class="login-btn" id="logout-btn">Sair</a>
+</div>
+
+<div class="flash-card-container">
+    <div class="side-text">
+        Crie seus<br>Flashcards!
+    </div>
+    <div class="content-text">
+        <h2>Gerenciar Flashcards</h2>
+        <p>Adicione até 20 flashcards. Clique na pergunta para ver a resposta.</p>
+        <form id="flashcard-form" style="margin-top:15px;">
+            <input type="text" id="pergunta" placeholder="Pergunta" required style="width:90%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc;">
+            <input type="text" id="resposta" placeholder="Resposta" required style="width:90%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc;">
+            <button type="submit" style="margin-top:10px; padding:10px 20px; border:none; border-radius:8px; background:#6b5b3e; color:#f7e7d3;">Adicionar</button>
+        </form>
+        <p id="msg" style="color:#996600; margin-top:5px;"></p>
+    </div>
+</div>
+
+<div class="cards-wrapper" id="cards-wrapper"></div>
+
+<!-- FOOTER  -->
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-logo">
+            <img src="img/Orango_Cards.png" alt="OrangoCards Logo" width="50">
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 OrangoCards - Criado por Abraão, Pedro Miguel, Rafael Bruno, Wesley e Yuri</p>
+        </div>
+    </div>
+</footer>
+
+<script src="js/flashcards.js"></script>
+</body>
+</html>
