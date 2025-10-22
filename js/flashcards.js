@@ -175,7 +175,7 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
         msgElement.style.color = "green";
         e.target.reset();
         
-        // Recarrega a lista
+        // recarrega a lista
         loadFlashcards();
         
     } catch (err) {
@@ -191,5 +191,5 @@ document.getElementById("logout-btn").addEventListener("click", () => {
     window.location.href = "index.html";
 });
 
-//  INICIALIZAÇÃO 
+//  inicializacao
 loadFlashcards();
