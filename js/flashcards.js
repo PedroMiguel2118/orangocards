@@ -18,7 +18,7 @@ try {
 // cria o baralho automatico 
 async function createDefaultDeck() {
     try {
-        console.log("📚 Criando baralho padrão para usuário:", currentUser.idusuarios);
+        console.log(" Criando baralho padrão para usuário:", currentUser.idusuarios);
         
         const res = await fetch("/baralho", {
             method: "POST",
@@ -38,7 +38,7 @@ async function createDefaultDeck() {
         
         return result;
     } catch (err) {
-        console.error("❌ Erro ao criar baralho:", err);
+        console.error(" Erro ao criar baralho:", err);
         throw err;
     }
 }
@@ -63,7 +63,7 @@ async function getOrCreateDeck() {
         return baralhos[0].idbaralho;
         
     } catch (err) {
-        console.error("❌ Erro ao obter/criar baralho:", err);
+        console.error(" Erro ao obter/criar baralho:", err);
         throw err;
     }
 }
@@ -82,7 +82,7 @@ async function countFlashcards() {
         return cards.length;
         
     } catch (err) {
-        console.error("❌ Erro ao contar flashcards:", err);
+        console.error(" Erro ao contar flashcards:", err);
         return 0;
     }
 }
@@ -125,7 +125,7 @@ async function loadFlashcards() {
         msgElement.innerText = `${cards.length}/20 flashcards criados`;
         
     } catch (err) {
-        console.error("❌ Erro ao carregar flashcards:", err);
+        console.error(" Erro ao carregar flashcards:", err);
         wrapper.innerHTML = "<p>Erro ao carregar flashcards.</p>";
     }
 }
@@ -148,7 +148,7 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
         // verifica se tem mais de 20 flashcards
         const totalFlashcards = await countFlashcards();
         if (totalFlashcards >= 20) {
-            msgElement.innerText = "❌ Limite de 20 flashcards atingido!";
+            msgElement.innerText = " Limite de 20 flashcards atingido!";
             msgElement.style.color = "red";
             return;
         }
@@ -171,7 +171,7 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
             throw new Error(result.error || "Erro ao criar flashcard");
         }
 
-        msgElement.innerText = `✅ Flashcard criado! (${totalFlashcards + 1}/20)`;
+        msgElement.innerText = ` Flashcard criado! (${totalFlashcards + 1}/20)`;
         msgElement.style.color = "green";
         e.target.reset();
         
@@ -179,7 +179,7 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
         loadFlashcards();
         
     } catch (err) {
-        console.error("❌ Erro ao criar flashcard:", err);
+        console.error(" Erro ao criar flashcard:", err);
         msgElement.innerText = "Erro ao criar flashcard!";
         msgElement.style.color = "red";
     }
