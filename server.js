@@ -41,28 +41,28 @@ function connectAndInitializeDB() {
 
   connection.connect(err => {
     if (err) {
-      console.error("❌ Erro ao conectar no MySQL:", err);
+      console.error(" Erro ao conectar no MySQL:", err);
       setTimeout(connectAndInitializeDB, 2000);
       return;
     }
 
-    console.log("✅ Conectado ao MySQL");
+    console.log(" Conectado ao MySQL");
 
     connection.query(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`, (err) => {
       if (err) {
-        console.error("❌ Erro ao criar banco:", err);
+        console.error(" Erro ao criar banco:", err);
         return;
       }
 
-      console.log(`✅ Banco '${dbConfig.database}' verificado/criado`);
+      console.log(` Banco '${dbConfig.database}' verificado/criado`);
 
       connection.changeUser({ database: dbConfig.database }, (err) => {
         if (err) {
-          console.error("❌ Erro ao conectar ao banco:", err);
+          console.error(" Erro ao conectar ao banco:", err);
           return;
         }
 
-        console.log(`✅ Conectado ao banco '${dbConfig.database}'`);
+        console.log(` Conectado ao banco '${dbConfig.database}'`);
         db = connection;
         checkAndCreateTables();
       });
@@ -70,7 +70,7 @@ function connectAndInitializeDB() {
   });
 
   connection.on('error', (err) => {
-    console.error('❌ Erro de conexão MySQL:', err);
+    console.error(' Erro de conexão MySQL:', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
       connectAndInitializeDB();
     }
@@ -120,9 +120,9 @@ function checkAndCreateTables() {
 
   db.query(createTablesSQL, (err) => {
     if (err) {
-      console.error("❌ Erro ao criar tabelas:", err);
+      console.error(" Erro ao criar tabelas:", err);
     } else {
-      console.log("✅ Tabelas verificadas/criadas com sucesso!");
+      console.log(" Tabelas verificadas/criadas com sucesso!");
     }
   });
 }
@@ -132,20 +132,20 @@ function checkAndCreateTables() {
 // Criação de usuario
 app.post("/usuarios", (req, res) => {
   const { nome, email, senha } = req.body;
-  console.log("👤 Criando usuário:", { nome, email });
+  console.log(" Criando usuário:", { nome, email });
   
   db.query(
     "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)",
     [nome, email, senha],
     (err, result) => {
       if (err) {
-        console.error("❌ Erro ao criar usuário:", err);
+        console.error(" Erro ao criar usuário:", err);
         if (err.code === 'ER_DUP_ENTRY') {
           return res.status(400).json({ error: "Email já cadastrado!" });
         }
         return res.status(500).json({ error: err.message });
       }
-      console.log("✅ Usuário criado com ID:", result.insertId);
+      console.log(" Usuário criado com ID:", result.insertId);
       res.json({ msg: "Usuário cadastrado!", id: result.insertId });
     }
   );
@@ -154,26 +154,26 @@ app.post("/usuarios", (req, res) => {
 // Login
 app.post("/login", (req, res) => {
   const { email, senha } = req.body;
-  console.log("🔐 Tentativa de login:", { email });
+  console.log(" Tentativa de login:", { email });
   
   db.query(
     "SELECT * FROM usuarios WHERE email = ? AND senha = ?",
     [email, senha],
     (err, results) => {
       if (err) {
-        console.error("❌ Erro no login:", err);
+        console.error(" Erro no login:", err);
         return res.status(500).json({ error: err.message });
       }
       
       if (results.length > 0) {
-        console.log("✅ Login bem-sucedido para:", email);
+        console.log(" Login bem-sucedido para:", email);
         res.json({ 
           success: true, 
           user: results[0],
           msg: "Login realizado com sucesso!"
         });
       } else {
-        console.log("❌ Login falhou para:", email);
+        console.log(" Login falhou para:", email);
         res.json({ 
           success: false, 
           msg: "Email ou senha incorretos!" 
@@ -186,17 +186,17 @@ app.post("/login", (req, res) => {
 // Criar baralho
 app.post("/baralho", (req, res) => {
   const { titulo, descricao, usuario_id } = req.body;
-  console.log("📚 Criando baralho:", { titulo, usuario_id });
+  console.log(" Criando baralho:", { titulo, usuario_id });
   
   db.query(
     "INSERT INTO baralho (titulo, descricao, usuario_id) VALUES (?, ?, ?)",
     [titulo, descricao, usuario_id],
     (err, result) => {
       if (err) {
-        console.error("❌ Erro ao criar baralho:", err);
+        console.error(" Erro ao criar baralho:", err);
         return res.status(500).json({ error: err.message });
       }
-      console.log("✅ Baralho criado com ID:", result.insertId);
+      console.log(" Baralho criado com ID:", result.insertId);
       res.json({ msg: "Baralho criado!", id: result.insertId });
     }
   );
@@ -206,9 +206,9 @@ app.post("/baralho", (req, res) => {
 app.post("/flashcard", (req, res) => {
   const { baralho_id, frente, verso } = req.body;
   
-  console.log("🎴 RECEBENDO REQUEST PARA CRIAR FLASHCARD:");
-  console.log("📦 Dados recebidos:", { baralho_id, frente, verso });
-  console.log("📝 Tipo dos dados:", {
+  console.log(" RECEBENDO REQUEST PARA CRIAR FLASHCARD:");
+  console.log(" Dados recebidos:", { baralho_id, frente, verso });
+  console.log(" Tipo dos dados:", {
     baralho_id: typeof baralho_id,
     frente: typeof frente,
     verso: typeof verso
@@ -216,30 +216,30 @@ app.post("/flashcard", (req, res) => {
   
   // Verifica se baralho_id e válido
   if (!baralho_id || baralho_id === "null" || baralho_id === "undefined") {
-    console.error("❌ baralho_id inválido:", baralho_id);
+    console.error(" baralho_id inválido:", baralho_id);
     return res.status(400).json({ error: "baralho_id é obrigatório e deve ser válido" });
   }
   
   // Converte para número se for string
   const baralhoId = parseInt(baralho_id);
   if (isNaN(baralhoId)) {
-    console.error("❌ baralho_id não é um número:", baralho_id);
+    console.error(" baralho_id não é um número:", baralho_id);
     return res.status(400).json({ error: "baralho_id deve ser um número" });
   }
   
   // Verificar se o baralho existe antes de inserir
   db.query("SELECT idbaralho FROM baralho WHERE idbaralho = ?", [baralhoId], (err, results) => {
     if (err) {
-      console.error("❌ Erro ao verificar baralho:", err);
+      console.error(" Erro ao verificar baralho:", err);
       return res.status(500).json({ error: "Erro ao verificar baralho" });
     }
     
     if (results.length === 0) {
-      console.error("❌ Baralho não encontrado, ID:", baralhoId);
+      console.error(" Baralho não encontrado, ID:", baralhoId);
       return res.status(404).json({ error: `Baralho com ID ${baralhoId} não existe` });
     }
     
-    console.log("✅ Baralho encontrado, criando flashcard...");
+    console.log(" Baralho encontrado, criando flashcard...");
     
     //cria o flashcard
     db.query(
@@ -247,13 +247,13 @@ app.post("/flashcard", (req, res) => {
       [baralhoId, frente, verso],
       (err, result) => {
         if (err) {
-          console.error("❌ Erro MySQL ao criar flashcard:", err);
-          console.error("❌ Código do erro:", err.code);
-          console.error("❌ Mensagem do erro:", err.message);
+          console.error(" Erro MySQL ao criar flashcard:", err);
+          console.error(" Código do erro:", err.code);
+          console.error(" Mensagem do erro:", err.message);
           return res.status(500).json({ error: err.message });
         }
         
-        console.log("✅ Flashcard criado com sucesso! ID:", result.insertId);
+        console.log(" Flashcard criado com sucesso! ID:", result.insertId);
         res.json({ 
           success: true,
           msg: "Flashcard criado!", 
@@ -267,7 +267,7 @@ app.post("/flashcard", (req, res) => {
 // Buscar flashcards por usuário
 app.get("/flashcards/:usuario_id", (req, res) => {
   const usuario_id = req.params.usuario_id;
-  console.log("🔄 Buscando flashcards para usuário:", usuario_id);
+  console.log(" Buscando flashcards para usuário:", usuario_id);
   
   db.query(
     `SELECT f.* FROM flashcards f 
@@ -276,10 +276,10 @@ app.get("/flashcards/:usuario_id", (req, res) => {
     [usuario_id],
     (err, results) => {
       if (err) {
-        console.error("❌ Erro ao buscar flashcards:", err);
+        console.error(" Erro ao buscar flashcards:", err);
         return res.status(500).json({ error: err.message });
       }
-      console.log(`✅ Encontrados ${results.length} flashcards`);
+      console.log(` Encontrados ${results.length} flashcards`);
       res.json(results);
     }
   );
@@ -288,17 +288,17 @@ app.get("/flashcards/:usuario_id", (req, res) => {
 // Buscar baralhos por usuário
 app.get("/baralhos/:usuario_id", (req, res) => {
   const usuario_id = req.params.usuario_id;
-  console.log("🔄 Buscando baralhos para usuário:", usuario_id);
+  console.log(" Buscando baralhos para usuário:", usuario_id);
   
   db.query(
     "SELECT * FROM baralho WHERE usuario_id = ?",
     [usuario_id],
     (err, results) => {
       if (err) {
-        console.error("❌ Erro ao buscar baralhos:", err);
+        console.error(" Erro ao buscar baralhos:", err);
         return res.status(500).json({ error: err.message });
       }
-      console.log(`✅ Encontrados ${results.length} baralhos`);
+      console.log(` Encontrados ${results.length} baralhos`);
       res.json(results);
     }
   );
@@ -308,4 +308,4 @@ app.get("/baralhos/:usuario_id", (req, res) => {
 connectAndInitializeDB();
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor rodando em http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(` Servidor rodando em http://localhost:${PORT}`));
