@@ -1,7 +1,7 @@
-//  VERIFICAR USUÁRIO LOGADO 
+//  verificacao de usuario logado 
 let currentUser = null;
 
-// Recupera o usuário completo do localStorage
+// recupera o usuário completo do localStorage
 try {
     const usuarioLogado = localStorage.getItem("usuarioLogado");
     if (usuarioLogado) {
@@ -15,7 +15,7 @@ try {
     window.location.href = "index.html";
 }
 
-// CRIAR BARALHO AUTOMÁTICO 
+// cria o baralho automatico 
 async function createDefaultDeck() {
     try {
         console.log("📚 Criando baralho padrão para usuário:", currentUser.idusuarios);
@@ -43,7 +43,7 @@ async function createDefaultDeck() {
     }
 }
 
-//  OBTER OU CRIAR BARALHO 
+//  obter ou criar baralho
 async function getOrCreateDeck() {
     try {
         const baralhosRes = await fetch(`/baralhos/${currentUser.idusuarios}`);
@@ -68,7 +68,7 @@ async function getOrCreateDeck() {
     }
 }
 
-//  CONTAR FLASHCARDS EXISTENTES 
+//  contar flashcards 
 async function countFlashcards() {
     try {
         const res = await fetch(`/flashcards/${currentUser.idusuarios}`);
@@ -87,7 +87,7 @@ async function countFlashcards() {
     }
 }
 
-//  CARREGAR FLASHCARDS 
+//  carrega os flashcards
 async function loadFlashcards() {
     const wrapper = document.getElementById("cards-wrapper");
     const msgElement = document.getElementById("msg");
@@ -109,7 +109,7 @@ async function loadFlashcards() {
             return;
         }
 
-        // 🔹 SEU LAYOUT ORIGINAL - CARTA SIMPLES
+        // layout
         cards.forEach(c => {
             const carta = document.createElement("div");
             carta.classList.add("carta");
@@ -121,7 +121,7 @@ async function loadFlashcards() {
             wrapper.appendChild(carta);
         });
         
-        // 🔹 ATUALIZA CONTADOR
+        // atualiza contador
         msgElement.innerText = `${cards.length}/20 flashcards criados`;
         
     } catch (err) {
@@ -130,7 +130,7 @@ async function loadFlashcards() {
     }
 }
 
-//  CRIAR FLASHCARD 
+//  cria o flashcard 
 document.getElementById("flashcard-form").addEventListener("submit", async e => {
     e.preventDefault();
     
@@ -145,7 +145,7 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
     }
 
     try {
-        // 🔹 VERIFICA SE JÁ TEM 20 FLASHCARDS
+        // verifica se tem mais de 20 flashcards
         const totalFlashcards = await countFlashcards();
         if (totalFlashcards >= 20) {
             msgElement.innerText = "❌ Limite de 20 flashcards atingido!";
@@ -185,7 +185,7 @@ document.getElementById("flashcard-form").addEventListener("submit", async e => 
     }
 });
 
-//  LOGOUT 
+//  logout
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("usuarioLogado");
     window.location.href = "index.html";
