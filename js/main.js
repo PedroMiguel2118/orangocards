@@ -51,7 +51,7 @@ async function registerUser() {
             const loginData = await loginRes.json();
             
             if (loginData.success) {
-                // ✅ SALVA O USUÁRIO COMPLETO
+                //  SALVA O USUÁRIO COMPLETO
                 localStorage.setItem("usuarioLogado", JSON.stringify(loginData.user));
                 
                 // Fecha modal e vai para flashcards
@@ -89,7 +89,7 @@ async function loginUser() {
         const data = await res.json();
 
         if (data.success) {
-            // ✅ SALVA O USUÁRIO COMPLETO
+            //  SALVA O USUÁRIO COMPLETO
             localStorage.setItem("usuarioLogado", JSON.stringify(data.user));
             
             // Fecha modal e vai para flashcards
