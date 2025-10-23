@@ -8,10 +8,9 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// arquivos estaticos
+
 app.use(express.static(__dirname));
 
-// rotas para as paginas html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -20,7 +19,6 @@ app.get("/flashcards.html", (req, res) => {
   res.sendFile(path.join(__dirname, "flashcards.html"));
 });
 
-//  Configuração da conexão MySQL
 const dbConfig = {
   host: "localhost",
   user: "root",
@@ -30,7 +28,6 @@ const dbConfig = {
 
 let db;
 
-//  Função para conectar e inicializar o banco
 function connectAndInitializeDB() {
   const connection = mysql.createConnection({
     host: dbConfig.host,
@@ -77,7 +74,6 @@ function connectAndInitializeDB() {
   });
 }
 
-// Função para verificação e criação de tabelas
 function checkAndCreateTables() {
   const createTablesSQL = `
     CREATE TABLE IF NOT EXISTS usuarios (
@@ -127,9 +123,7 @@ function checkAndCreateTables() {
   });
 }
 
-//  rotas da APi
 
-// Criação de usuario
 app.post("/usuarios", (req, res) => {
   const { nome, email, senha } = req.body;
   console.log(" Criando usuário:", { nome, email });
@@ -151,7 +145,6 @@ app.post("/usuarios", (req, res) => {
   );
 });
 
-// Login
 app.post("/login", (req, res) => {
   const { email, senha } = req.body;
   console.log(" Tentativa de login:", { email });
@@ -183,7 +176,6 @@ app.post("/login", (req, res) => {
   );
 });
 
-// Criar baralho
 app.post("/baralho", (req, res) => {
   const { titulo, descricao, usuario_id } = req.body;
   console.log(" Criando baralho:", { titulo, usuario_id });
@@ -202,7 +194,6 @@ app.post("/baralho", (req, res) => {
   );
 });
 
-// Criar flashcard
 app.post("/flashcard", (req, res) => {
   const { baralho_id, frente, verso } = req.body;
   
@@ -214,20 +205,17 @@ app.post("/flashcard", (req, res) => {
     verso: typeof verso
   });
   
-  // Verifica se baralho_id e válido
   if (!baralho_id || baralho_id === "null" || baralho_id === "undefined") {
     console.error(" baralho_id inválido:", baralho_id);
     return res.status(400).json({ error: "baralho_id é obrigatório e deve ser válido" });
   }
   
-  // Converte para número se for string
   const baralhoId = parseInt(baralho_id);
   if (isNaN(baralhoId)) {
     console.error(" baralho_id não é um número:", baralho_id);
     return res.status(400).json({ error: "baralho_id deve ser um número" });
   }
   
-  // Verificar se o baralho existe antes de inserir
   db.query("SELECT idbaralho FROM baralho WHERE idbaralho = ?", [baralhoId], (err, results) => {
     if (err) {
       console.error(" Erro ao verificar baralho:", err);
@@ -241,7 +229,6 @@ app.post("/flashcard", (req, res) => {
     
     console.log(" Baralho encontrado, criando flashcard...");
     
-    //cria o flashcard
     db.query(
       "INSERT INTO flashcards (baralho_id, frente, verso) VALUES (?, ?, ?)",
       [baralhoId, frente, verso],
@@ -264,7 +251,6 @@ app.post("/flashcard", (req, res) => {
   });
 });
 
-// Buscar flashcards por usuário
 app.get("/flashcards/:usuario_id", (req, res) => {
   const usuario_id = req.params.usuario_id;
   console.log(" Buscando flashcards para usuário:", usuario_id);
@@ -285,7 +271,6 @@ app.get("/flashcards/:usuario_id", (req, res) => {
   );
 });
 
-// Buscar baralhos por usuário
 app.get("/baralhos/:usuario_id", (req, res) => {
   const usuario_id = req.params.usuario_id;
   console.log(" Buscando baralhos para usuário:", usuario_id);
@@ -304,7 +289,6 @@ app.get("/baralhos/:usuario_id", (req, res) => {
   );
 });
 
-//inicialização 
 connectAndInitializeDB();
 
 const PORT = 3000;
